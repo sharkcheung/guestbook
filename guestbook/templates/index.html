@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% from 'bootstrap/form.html' import render_form %}
+{% import 'page.html' as pg %}
+
+{% block content %}
+    <div class="hello-form">
+        {{ render_form(form, action=request.full_path) }}
+        <img style="margin-top:10px;" src="/code" onclick="this.src='/code?'+ Math.random()">
+{#        <form action="{{ request.full_path }}" method="post" class="form" role="form">#}
+{#            {{ form.csrf_token }}#}
+{#            <div class="form-group required">#}
+{#            {{ form.name.label }}{{ form.name }}#}
+{#            </div>#}
+{#            <div class="form-group required">#}
+{#            {{ form.body.label }}{{ form.body }}#}
+{#            </div>#}
+{#            <div class="form-group required">#}
+{#            {{ form.verifycode.label }}{{ form.verifycode }}<img style="margin-top:10px;" src="/code" onclick="this.src='/code?'+ Math.random()">#}
+{#            </div>#}
+{#            {{ form.submit }}#}
+{##}
+{#        </form>#}
+    </div>
+    <h5>{{ pagination.total }} messages
+        <small class="float-right">
+            <a href="#bottom" title="Go Bottom">&darr;</a>
+        </small>
+    </h5>
+    <div class="list-group">
+        {% for message in messages %}
+            <a class="list-group-item list-group-item-action flex-column">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1 text-success">{{ message.name }}
+                        <small class="text-muted"> #{{ (pagination.total)-(pagination.page-1)*(pagination.per_page)-loop.index + 1 }}</small>
+                    </h5>
+                    <small data-toggle="tooltip" data-placement="top"
+                           data-timestamp="{{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}"
+                           data-delay="500">
+                        {{ moment(message.timestamp).fromNow(refresh=True) }}
+                    </small>
+                </div>
+                <p class="mb-1">{{ message.body }}</p>
+            </a>
+        {% endfor %}
+        {{pg.my_paginate(pagination,'index')}}
+    </div>
+{% endblock %}

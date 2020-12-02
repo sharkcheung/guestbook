@@ -1,0 +1,2 @@
+FLASK_APP=guestbook
+FLASK_ENV=development
