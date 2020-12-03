@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% from 'bootstrap/form.html' import render_form %}
+
+{% block header %}
+<header>
+    <h1 class="text-center display-4">
+        <a href="{{ url_for('reg') }}" class="text-success"><strong>注册</strong></a>
+    </h1>
+</header>
+{% endblock %}
+{% block content %}
+    <div class="hello-form">
+        {{ render_form(form, action=request.full_path) }}
+        <img style="margin-top:10px;" src="/code" onclick="this.src='/code?'+ Math.random()">
+
+        <a href="{{ url_for('login') }}" class="btn btn-block">登录</a>
+    </div>
+{% endblock %}

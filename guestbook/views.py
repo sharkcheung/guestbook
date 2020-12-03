@@ -9,11 +9,14 @@ from io import BytesIO
 from flask import flash, redirect, url_for, render_template, request, make_response, session
 
 from guestbook import app, db
-from guestbook.forms import HelloForm
-from guestbook.models import Message
+from guestbook.forms import HelloForm, LoginForm, RegForm
+from guestbook.models import Message, User
 
 from PIL import Image, ImageFont, ImageDraw, ImageFilter
 import random
+import functools
+
+from guestbook.settings import FONT_DIR
 
 
 def validate_picture():
@@ -24,7 +27,7 @@ def validate_picture():
     # 先生成一个新图片对象
     im = Image.new('RGB', (width, heighth), 'white')
     # 设置字体
-    font = ImageFont.truetype('/usr/share/fonts/chinese/MSYH.TTC', 40)
+    font = ImageFont.truetype(FONT_DIR, 40)
     # 创建draw对象
     draw = ImageDraw.Draw(im)
     str = ''
@@ -50,7 +53,6 @@ def validate_picture():
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/<int:page>', methods=['GET', 'POST'])
 def index(page=None):
-    print(page)
     per_page = request.args.get('per_page', 10, type=int)
     form = HelloForm()
     if form.validate_on_submit():
@@ -64,6 +66,71 @@ def index(page=None):
 
     messages = Message.query.order_by(Message.timestamp.desc()).paginate(page=page, per_page=per_page)
     return render_template('index.html', form=form, messages=messages.items, pagination=messages)
+
+
+@app.context_processor
+def my_context_processor():
+    status = session.get('status', '')
+    user = session.get('user', '')
+    return {'status': status, 'user': user}
+
+
+def is_login(func):
+    @functools.warps(func)
+    def inner(*args, **kwargs):
+        user = session.get('user')
+        if not user:
+            return redirect('login')
+        return func(*args, **kwargs)
+
+    return inner
+
+
+@app.route("/login", methods=['POST', 'GET'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        userpass = form.userpass.data
+        user = User(username=username, userpass=userpass)
+        ret = user.check_login(username, userpass)
+        if ret['code'] == 0:
+            # db.session.add(message)
+            # db.session.commit()
+            session['status'] = 'OK'
+            session['user'] = ret['data']
+            flash('登录成功！')
+            return redirect(url_for('index'))
+        else:
+            flash(ret['msg'])
+            session['status'] = 'BAD'
+    return render_template('login.html', form=form)
+
+
+@app.route("/logout", methods=['GET'])
+def logout():
+    session.pop('user')
+    return redirect(url_for('index'))
+
+
+@app.route("/reg", methods=['POST', 'GET'])
+def reg():
+    form = RegForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        userpass = form.userpass.data
+        user = User(username=username, userpass=userpass)
+        ret = user.reg_user(username, userpass)
+        if ret['code'] == 0:
+            # db.session.add(message)
+            # db.session.commit()
+            session['status'] = 'OK'
+            flash('注册成功！')
+            return redirect(url_for('login'))
+        else:
+            flash(ret['msg'])
+            session['status'] = 'BAD'
+    return render_template('reg.html', form=form)
 
 
 @app.route('/code')

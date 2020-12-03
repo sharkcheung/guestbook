@@ -13,23 +13,28 @@
     {% block header %}
     <header>
         <h1 class="text-center display-4">
-            <a href="{{ url_for('index') }}" class="text-success"><strong>Shark'Guestbook</strong></a>
-            <small class="text-muted sub-title">say something</small>
+            <a href="{{ url_for('index') }}" class="text-success"><strong>Hi！{% if user.username %}{{ user.username }}{% else %}Guest{% endif %}</strong></a>
+            <small class="text-muted sub-title">{% if user.username %}<a href="{{ url_for('logout') }}" class="btn btn-secondary">退出</a>{% else %}<a href="{{ url_for('login') }}" class="btn btn-secondary">登录</a> <a href="{{ url_for('reg') }}" class="btn btn-secondary">注册</a>{% endif %}</small>
         </h1>
     </header>
     {% endblock %}
     {% for message in get_flashed_messages() %}
-        <div class="alert alert-info">
+        <div class="alert {% if status == 'OK' %}alert-info{% else %}alert-danger{% endif %}">
             <button type="button" class="close" data-dismiss="alert">&times;</button>
             {{ message }}
         </div>
+        <script>
+            window.setTimeout(function(){
+         		$(".alert").remove();
+            },3000);//显示的时间
+        </script>
     {% endfor %}
     {% block content %}{% endblock %}
     <footer class="text-center">
         {% block footer %}
-            <small> &copy; 2020 <a href="http://iconb.cn" title="Written by Shark Cheung">Shark Cheung</a> /
+            <small> &copy; 2020 <a href="https://www.iconb.cn" title="Written by Shark Cheung">Shark Cheung</a> /
                 <a href="https://github.com/sharkcheung/Guestbook" title="Fork me on GitHub">GitHub</a> /
-                <a href="http://helloflask.com" title="A HelloFlask project">HelloFlask</a>
+                <a href="http://guestbook.iconb.cn" title="A GuestBook project">GuestBook</a>
             </small>
             <p><a id="bottom" href="#" title="Go Top">&uarr;</a></p>
         {% endblock %}
