@@ -20,6 +20,7 @@ class Message(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
 
 
+
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -64,6 +65,6 @@ class User(db.Model):
                 retjson = {'code': -1, 'msg': '密码不正确！', 'data': []}
         return retjson
 
-
+db.create_all()
 if __name__ == '__main__':
     db.create_all()
