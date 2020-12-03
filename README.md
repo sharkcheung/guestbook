@@ -33,6 +33,15 @@ $ flask run
 * Running on http://127.0.0.1:5000/
 ```
 
+install font：
+
+Make directory chinese
+Upload font file to chinese directory
+```
+$ chmod u+rwx /usr/share/fonts/chinese/*
+$ fc-cache –fv
+```
+
 ## License
 
 This project is licensed under the MIT License (see the
